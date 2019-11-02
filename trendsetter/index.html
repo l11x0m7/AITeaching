@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/isotope.css">
+        <link rel="stylesheet" href="css/main.css">
+		
+		<!-- sample color stylesheet 
+		<link rel="stylesheet" href="css/color/blue.css">
+		-->
+		
+        <!-- favicon -->
+        <link rel="icon" type="image/png" href="favicon.png" />
+
+
+        <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+		
+		<script src="https://cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+
+        <script>
+            function hit(passage, question, options){
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", '/answer', true);
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.onreadystatechange = function () {
+                    console.log(xhr.status);
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var json = JSON.parse(xhr.responseText);
+                        console.log(json.answer);
+                        console.log(json.url);
+                        var ans = document.getElementById("answer");
+                        ans.innerHTML = json.answer;
+
+                        // window.open("https://codeload.github.com/douban/douban-client/legacy.zip/master")
+                        var $eleForm = $("<form method='get'></form>");
+                        $eleForm.attr("action", json.url);
+                        $(document.body).append($eleForm);
+                        // 提交表单，实现下载
+                        $eleForm.submit();
+                        console.log("downloaded");
+                    }
+                };
+                var params = JSON.stringify({"question": question, "passage": passage});
+                xhr.send(params);
+                console.log("sent");
+
+            }
+        </script>
+
+    </head>
+    <body data-spy="scroll" data-target=".navbar">
+
+        <div class="navbar affix main-trend-navbar">
+            <div class="navbar-inner">
+                <!--<img src="img/sample_guy.png" class="profile-pic"/> -->
+                <a href="#" class="small-nav-toggle"><i class="fa fa-bars"></i></a>
+                <div style="clear:both"></div>
+                 <ul class="nav option-set scroll-link">
+                    <li><a href="#home"><i class="fa fa-coffee"></i>主页</a></li><li>
+                    <a href="#portfolio"><i class="fa fa-book"></i>英语阅读理解</a></li><li>
+                    <a href="#about"><i class="fa fa-glass"></i>英语完型填空</a></li><li>
+                    <a href="#ocr"><i class="fa fa-eye"></i>图片文字识别</a></li><li>
+                    <a href="#contact"><i class="fa fa-envelope"></i>联系我们</a></li>
+                 </ul>
+				 
+				 <!-- DEMO START -->
+				 <ul class="nav demo-nav">
+                    <li><a href="#demo-content" id="demo-toggle"><i class="fa fa-gear"></i>主题颜色</a></li>
+				 </ul>
+				 <div class="demo-area">
+					 <span class="demo-msg">Demo Colors:
+					 </span>
+					 <a href="#" style="background:#f8166c" data-color="pink"></a>
+					 <a href="#" style="background:#68a0f5" data-color="blue"></a>
+					 <a href="#" style="background:#32d436" data-color="green"></a>
+					 <a href="#" style="background:#d5c013" data-color="gold"></a>
+					 <a href="#" style="background:#4cb89b" data-color="teal"></a>
+					 <a href="#" style="background:#fe2525" data-color="red"></a>
+				 </div>
+				<script>
+				function change_color(color){
+					var doc = document; // shortcut
+					var head  = doc.getElementsByTagName('head')[0];
+					var link  = doc.createElement('link');
+					link.rel  = 'stylesheet';
+					link.type = 'text/css';
+					link.href = 'css/color/'+color+'.css';
+					link.media = 'all';
+					head.appendChild(link);
+				}
+				$('.demo-area a').click(function(e){
+					e.preventDefault();
+					change_color($(this).attr("data-color"));
+					$('.demo-area').slideUp(150);
+				});
+				$('#demo-toggle').click(function(e){
+					e.preventDefault();
+					$('.demo-area').slideToggle(150);
+				});
+				</script>
+				<style>
+					.demo-area a{
+						width: 17px;
+						height: 17px;
+						display: inline-block;
+						margin: 1px 6px 1px 0;
+						border-radius: 2px;
+						border: 2px solid #f6f6f6;
+						border: 2px solid transparent;
+						transition: 150ms all;
+						-o-transition: 150ms all;
+						-moz-transition: 150ms all;
+						-webkit-transition: 150ms all;
+					}
+					.demo-area a:hover{
+						opacity: 0.9;
+						border-color: rgba(0,0,0,0.4);
+					}
+					.demo-area a:active{
+						box-shadow: none;
+					}
+					span.demo-msg{
+						font-size: 10px;
+						text-transform: uppercase;
+						font-weight: bold;
+						display: block;
+						color: #aaa;
+					}
+					.demo-area{
+						display: none;
+						margin: 10px 12px 5px 12px;
+					}
+					@media(max-width: 767px){
+						.demo-area, .demo-nav{
+							display: none !important;							
+						}
+					}
+				</style>
+				<!-- DEMO END -->
+
+            </div>
+			
+        </div>
+		
+		<!-- home begins -->
+        <div id="home" class="content-section masthead-content">
+            <div class="main-masthead">
+                <div class="container masthead-container text-center">
+                    <h1 class="intro-text">AI教学工作间</h1>
+                    <h2 class="intro-secondary">Skyhigh Work</h2>
+                    <div class="social-icons">
+                        <a href="https://weibo.com/" class="btn btn-round btn-clear"><i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="https://www.renren.com/" class="btn btn-round btn-clear"><i class="fa fa-renren"></i>
+                        </a>
+                        <a href="https://www.google.cn/" class="btn btn-round btn-clear"><i class="fa fa-google-plus"></i>
+                    </a>
+                </div>
+                </div>
+                <img class="masthead-image parallax" src="img/main1.jpg">
+            </div>
+        </div>
+		<!-- home ends -->
+		
+		<!-- portfolio begins -->
+        <div class="content-section" id="portfolio">
+            <div class="container">
+                <h1>英语阅读理解</h1>
+		<!--
+                <ul class="nav option-isotope" data-option-key="filter">
+                    <li>
+                        <a href="#show-all" data-option-value="*" class="selected btn btn-clear">All
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-option-value=".category-1" class="btn btn-clear">Photo
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-option-value=".category-2" class="btn btn-clear">Gallery
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-option-value=".category-3" class="btn btn-clear">Video
+                        </a>
+                    </li>
+                </ul>
+		-->
+		<!--
+                <div id="container-isotope" class="super-list clearfix">
+                    <a href="project_image_1.html" class="element category-1">
+                        <img src="img/portfolio/1_thumb.jpg" class="portfolio-image" alt="portfolio image"/>
+                        <span class="portfolio-text">
+                            <h3>Affliction
+                            </h3>
+                            <span><i class="fa fa-tag"></i>Photo
+                            </span>
+                            <p>Lorem ipsum dolor site amet con, sectetur adipiscing elit.
+                            </p>
+                        </span>
+                    </a>
+                </div>
+		-->
+                         <form class="contact_form" id="contact_form">
+                            <div class="contact-row">
+                                  <i class="fa fa-comment"></i>
+        <textarea id='passage' style="height:300px" placeholder="文章如:&#13;&#10;Do you love holidays but hate the increase weight that follows? You are not alone.&#13;&#10;Holidays are happy days with pleasure and delicious foods. Many people, however, are worried about the weight that comes along with these delicious foods.&#13;&#10;With proper planning, though, it is possible to control your weight. The idea is to enjoy the holidays but not to eat too much. You don't have to turn away from the foods that you enjoy. The following suggestions may be of some help to you.&#13;&#10;Do not miss meals. Before yon leave home for a feast,have a small, low-fat snack. This may help to keep you from getting too excited before delicious foods. Begin with clear soup and fruit or vegetables. A large glass of water before you eat may help you feel full. Use a small plate; a large plate will encourage you to have more than enough.&#13;&#10;Better not have high-fat foods. Dishes that look oily or creamy have much fat in them.&#13;&#10;Choose lean meat.Fill your plate with salad and green vegetables.&#13;&#10;If you have a sweet tooth, try mints and fruits. They don't have fat content as cream and chocolate.&#13;&#10;Don't let exercise take a break during the holidays. A 20-minute walk after a meal can help burn off excess calories."></textarea>
+                            </div>
+                            <div class="contact-row">
+                                  <i class="fa fa-question"></i>
+        			  <textarea id='question' style="height:300px" placeholder="问题和选项如:&#13;&#10;66. Holidays are happy days with pleasure but they may ______&#13;&#10;A. bring weight problems&#13;&#10;B. bring you much trouble in your life&#13;&#10;C. make you worried about your foods&#13;&#10;D. make you hate delicious foods&#13;&#10;&#13;&#10;67. In order to really enjoy your holidays without putting on weight, you'd better__&#13;&#10;A. drink much water and have vegetables only&#13;&#10;B. not eat the food in high fat&#13;&#10;C. not accept invitations to feasts&#13;&#10;D. turn away from delicious foods&#13;&#10;&#13;&#10;68. According to the passage, ___ is a necessary part to stop you from putting on weight.&#13;&#10;A. vegetables&#13;&#10;B. water&#13;&#10;C. calories of energy&#13;&#10;D. physical exercise&#13;&#10;&#13;&#10;69. Many people can't help putting on weight after the holidays because they _______ .&#13;&#10;A. can't control themselves &#13;&#10;B. go to too many feasts&#13;&#10;C. enjoy delicious foods &#13;&#10;D. can't help turning away from the foods&#13;&#10;&#13;&#10;70. Excess calories can be found in your body in the form of___ .&#13;&#10;A. energy &#13;&#10;B. fat &#13;&#10;C. food &#13;&#10;D. something invisible"></textarea>
+                            </div>
+        		<p id='note'>注:1. 提交后会导出报告; 2. 请按照示例格式输入，否则会失败; 3. 目前仅支持英文(有其他语言则会失败);4. 目前准确率约80%</p>
+        		<p id='answer'>答案:提交后希望您能耐心等待(每个问题大概需要5-10秒响应)</p>
+                            <button type="button" id="GetAnswer" class="btn btn-primary btn-large btn-clear">提交 <i class="fa fa-upload"></i></button>
+        <script>
+            // document.getElementById("passage").value="文章如:\nDo you love holidays but hate the increase weight that follows? You are not alone.\nHolidays are happy days with pleasure and delicious foods. Many people, however, are worried about the weight that comes along with these delicious foods.\nWith proper planning, though, it is possible to control your weight. The idea is to enjoy the holidays but not to eat too much. You don't have to turn away from the foods that you enjoy. The following suggestions may be of some help to you.\nDo not miss meals. Before yon leave home for a feast,have a small, low-fat snack. This may help to keep you from getting too excited before delicious foods. Begin with clear soup and fruit or vegetables. A large glass of water before you eat may help you feel full. Use a small plate; a large plate will encourage you to have more than enough.\nBetter not have high-fat foods. Dishes that look oily or creamy have much fat in them.\nChoose lean meat.Fill your plate with salad and green vegetables.\nIf you have a sweet tooth, try mints and fruits. They don't have fat content as cream and chocolate.\nDon't let exercise take a break during the holidays. A 20-minute walk after a meal can help burn off excess calories.";
+            // document.getElementById("question").value="问题和选项如:\n66. Holidays are happy days with pleasure but they may ______\nA. bring weight problems\nB. bring you much trouble in your life\nC. make you worried about your foods\nD. make you hate delicious foods\n\n67. In order to really enjoy your holidays without putting on weight, you'd better__\nA. drink much water and have vegetables only\nB. not eat the food in high fat\nC. not accept invitations to feasts\nD. turn away from delicious foods\n\n68. According to the passage, ___ is a necessary part to stop you from putting on weight.\nA. vegetables\nB. water\nC. calories of energy\nD. physical exercise\n\n69. Many people can't help putting on weight after the holidays because they _______ .\nA. can't control themselves \nB. go to too many feasts\nC. enjoy delicious foods \nD. can't help turning away from the foods\n\n70. Excess calories can be found in your body in the form of___ .\nA. energy \nB. fat \nC. food \nD. something invisible";
+
+            var button = document.getElementById("GetAnswer");
+            button.onclick = function (){
+                var para = document.getElementById("passage");
+                var ques = document.getElementById("question");
+                console.log("hitting");
+                hit(para.value, ques.value);
+            };
+        </script>
+			</form>
+            </div>
+            <img class="masthead-image parallax" src="img/main2.jpg">
+		</div>
+		<!-- portfolio ends -->
+		
+		<!-- about begins -->
+		<div class="content-section" id="about">
+            <div class="container">
+                <h1>英语完型填空</h1>
+                <p class="medium-text">
+                该功能还在开发中...
+                </p>
+		<!--
+                <div class="row-fluid">
+                    <div class="span7">
+                        <h3 class="main-color">Employment</h3>
+                        
+                        <div class="row-employment">
+                            <h4 class="thin-title">Web Designer, ThemeForest</h4>
+                            <strong class="about-meta"><i class="fa fa-calendar"></i>Dec 2012 - July 2013</strong>
+                            <p>Created design solutions that had a high visual impact. Design decisions involved listening to clients and understanding their needs before making design decisions. Produced variety of graphics to communicate a better corporate identity.
+                            </p>
+                        </div>
+                        <div class="row-employment">
+                            <h4 class="thin-title">Digital Artist, GraphicRiver</h4>
+                            <strong class="about-meta"><i class="fa fa-calendar"></i>Dec 2012 - July 2013</strong>
+                            <p>Created design solutions that had a high visual impact. Design decisions involved listening to clients and understanding their needs before making design decisions. Produced variety of graphics to communicate a better corporate identity.
+                            </p>
+                        </div>
+                        <div class="row-employment">
+                            <h4 class="thin-title">Animator, VideoHive</h4>
+                            <strong class="about-meta"><i class="fa fa-calendar"></i>Dec 2012 - July 2013</strong>
+                            <p>Created design solutions that had a high visual impact. Design decisions involved listening to clients and understanding their needs before making design decisions. Produced variety of graphics to communicate a better corporate identity.
+                            </p>
+                        </div>
+						<div class="row-employment">
+                            <h4 class="thin-title">Musician, AudioJungle</h4>
+                            <strong class="about-meta"><i class="fa fa-calendar"></i>Dec 2012 - July 2013</strong>
+                            <p>Created design solutions that had a high visual impact. Design decisions involved listening to clients and understanding their needs before making design decisions. Produced variety of graphics to communicate a better corporate identity.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="span4 offset1">
+                       	<h3 class="main-color">Skills</h3>
+                        <div>
+                            <div class="progress">
+                              <div class="bar" style="width: 90%">
+                                <span>HTML</span>
+                              </div>
+                            </div>
+                            <div class="progress">
+                              <div class="bar" style="width: 50%">
+                                <span>CSS3</span>
+                              </div>
+                            </div>
+                            <div class="progress">
+                              <div class="bar" style="width: 60%">
+                                  <span>JQuery</span>
+                              </div>
+                            </div>
+                            <div class="progress">
+                              <div class="bar" style="width: 70%">
+                                  <span>UI/UX</span>
+                              </div>
+                            </div>
+                            <div class="progress">
+                                <div class="bar" style="width: 55%">
+                                    <span>Photoshop</span>
+                                </div>
+                            </div>
+                            <div class="progress">
+                              <div class="bar" style="width: 50%">
+                                    <span>Wordpress</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="main-color">Education</h3>
+						<div>
+							<div class="row-edu">
+								<h4 class="thin-title">Bachelor's Degree</h4>
+								<strong class="about-meta">University of Toronto, 2013</strong>
+							</div>
+							<div class="row-edu">
+								<h4 class="thin-title">Art Certificate</h4>
+								<strong class="about-meta">Multimedia Instituion, 2011</strong>
+							</div>
+						</div>
+						<h3 class="main-color">Testimonials</h3>
+
+						<div id="testimonials_carousel" class="carousel slide">
+						  <div class="carousel-inner">
+							<div class="item active">
+							  <blockquote>John Doe is a great guy to work with. Constantly reliable and efficient. A++.
+								<small>Bob Smith</small>
+							  </blockquote>
+							</div>
+							<div class="item">
+							  <blockquote>Delivered results immediately. Impeccable attention to detail.
+								<small>Jane Smith</small>
+							  </blockquote>
+							</div>
+							<div class="item">
+							  <blockquote>Great doing business with you! Absolutely totally satisfied in every way.
+								<small>Mr Boss</small>
+							  </blockquote>
+							</div>
+						  </div>
+						  <ol class="carousel-indicators testimonials">
+							<li data-target="#testimonials_carousel" data-slide-to="0" class="active"></li>
+							<li data-target="#testimonials_carousel" data-slide-to="1" class=""></li>
+							<li data-target="#testimonials_carousel" data-slide-to="2" class=""></li>
+						  </ol>
+						</div>
+                    </div>
+                </div>
+		-->
+
+		</div>
+            <img class="masthead-image parallax" src="img/main3.jpg">
+            </div>
+
+	<div class="content-section" id="ocr">
+            <div class="container">
+                <h1>图片文字识别</h1>
+                <p class="medium-text">
+                该功能还在开发中(目前主要用于英文图像转文本)...
+                </p>
+            </div>
+            <img class="masthead-image parallax" src="img/main2.jpg">
+		</div>
+		<!-- about ends -->
+		
+		<!-- contact begins -->
+		<div class="content-section" id="contact">
+            <div class="container">
+                <h1>联系我们</h1>
+                <div clas="row-fluid">
+
+                </div>
+                <br>
+                <div class="row-fluid">
+					
+                    <div class="span5">
+                        <h3 class="main-color">个人档案</h3>
+                        <p class="medium-text">
+                            <i class="fa fa-user h4-icon"></i> Mark Lin
+                        <br>
+                            <i class="fa fa-phone h4-icon"></i> 1326170****
+                        <br>
+                            <i class="fa fa-home h4-icon"></i> Alibaba Inc., Hangzhou, Zhejiang
+                        <br>
+                            <i class="fa fa-envelope h4-icon"></i> 460917953@qq.com
+                        </p>
+                    </div>
+                    <div class="span7">
+                         <h3 class="main-color">请联系我</h3>
+                         <form class="contact_form" id="contact_form">
+                            <div class="contact-row">
+                                  <i class="fa fa-user"></i>
+                                  <input type="text" id="fname" placeholder="Name">
+                            </div>
+                            <div class="contact-row">
+                                  <i class="fa fa-envelope"></i>
+                                  <input type="text" id="email" placeholder="Email">      
+                            </div> 
+                            <div class="contact-row">
+                                  <i class="fa fa-comment"></i>
+                                  <textarea id="message" name="message" placeholder="Message"></textarea>
+                            </div>
+                            <button type="submit" id="submit_contact_info" class="btn btn-primary btn-large btn-clear">发送留言 <i class="fa fa-envelope"></i></button>
+                        </form>
+                        <div class="alert-success alert">
+                                Thank you for your message! I will get back to you as soon as possible.
+                            </div>
+                            <div class="alert-error alert">
+                                Sorry, your message was not sent successfully.
+                            </div>
+                    </div>
+				</div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <strong>&copy; Copyright 2019 <a href="http://skyhigh233.com" target="_blank">个人博客</a>
+                </strong>
+            </div>
+            <img class="masthead-image parallax" src="img/main4.jpg">
+		</div>
+		<!-- contact ends -->
+		
+        <div class="overlay"></div>
+        <div class="portfolio-overlay">
+        </div>
+       
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/jquery.ui.ease.js"></script>
+        <script src="js/vendor/jquery.isotope.min.js"></script>
+        <!--[if lte IE 9]>
+            <script src="js/ie.js"></script>
+        <![endif]-->
+        <script src="js/main.js"></script>
+        
+    </body>
+</html>

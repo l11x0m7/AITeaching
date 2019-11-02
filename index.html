@@ -1,0 +1,26 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>英语阅读理解助手</title>
+</head>
+<body>
+    <form action="{{ url_for('login') }}" method="post">
+        <table>
+            <tbody>
+                <tr>
+                    <td>文章 </td>
+                    <td><input type="text" placeholder="此处输入文章" name = 'passage'></td>
+                </tr>
+                <tr>
+                    <td>问题 </td>
+                    <td><input type="text" placeholder="此处输入问题" name = 'question'></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="寻求答案"></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</body>
+</html><!DOCTYPE html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"> 
+        <script>
+            function hit(passage, question, options){
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", '/answer', true);
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.onreadystatechange = function () {
+                    console.log(xhr.status);
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var json = JSON.parse(xhr.responseText);
+                        console.log(json.answer);
+                        var ans = document.getElementById("answer");
+                        ans.innerHTML = json.answer;
+                    }
+                };
+                var params = JSON.stringify({"question": question, "passage": passage});
+                var params = JSON.stringify({"question": question, "passage": passage, "options": options});
+                xhr.send(params);
+                console.log("sent");
+            }
+        </script>
+        <style>
+            body{
+                display: grid;
+                grid-template-columns: 7fr 3fr;
+                grid-template-rows: 500px 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <textarea id='passage' placeholder='文章，如:The Sunset Pasta Cruise to Emerald Bay Saturday evening, September 25, 2010 You will cruise to Emerald Bay at Sunset, one of the most beautiful places in the world while dining on a Pasta Buffet and listening to live light dance music. Buses will pick up Sunset Pasta Cruise diners from the main entrance to the Horizon Casino Resort at: 4:40pm and 5:05pm on Saturday and take you the 1.5 miles to Ski Run Marina for boarding. Boarding is at Ski Run Marina at 5:15 p.m. (with departure at 5:45 p.m.), located in South Lake Tahoe. The cost for the cruise, pasta buffet, live music, and the 2.5-hour cruise to Emerald Bay is $55 (normally $75). The cost for children between 3-11 is $41 and under 3 is free. Must register the under 3 as well for the coast guard count. The Sunset Pasta Cruise will be limited to 200 guests. Large parties will be seated first to insure seating together. Pick up your Sunset Pasta Cruise tickets at the Expo at the Horizon Casino Resort before 3 p.m. on Saturday. Those unclaimed will be sold to those on the waiting list at that time. At approximately 5:45 pm any extra spaces will be sold to passengers on the dock. Children who require a seat must have a ticket as well. Closest lodging to the Pasta Cruise is: Super 8, Lakeland Village. Please note that our sponsor , the Riva Grill, is on the Lake close to the boarding area for the Tahoe Queen. A great gathering place to meet or to have dinner. Call Riva Grill (530) 542-2600 for lunch or dinner reservations while you are visiting Lake Tahoe.'></textarea>
+        <textarea id='question' placeholder='问题，如:When will the cruise to Emerald Bay end?'></textarea>
+        <textarea id='options' placeholder='选项，如:&#13;&#10;At about 7:00 pm.&#13;&#10;At about 8:20 pm.&#13;&#10;At about 9:20 pm.&#13;&#10;On Sunday morning.'></textarea>
+        <p id='answer'>Your answer appears here</p>
+        <button id='GetAnswer'>Get Answer</button>
+        <script>
+            document.getElementById("passage").value="Alice's mother died when she was five. Although her brothers and sisters were loving and caring, their love couldn't take the place of a mother's. In 1925 Alice became my mother and told me that her family couldn't even afford her a doll. One afternoon in December 1982, when I was getting ready for Christmas, I suddenly decided to buy two dolls, one for my five-year-old daughter, Katie, and one for my old mother. Things went smoothly when a friend told me that his dad, who played Santa Claus in my area, would be willing to make a visit on Christmas morning to our home with the gifts! Knowing that my parents would also come to my house, I began to get ready for the most memorable day of my mother's life. Christmas Day arrived and so did Santa Claus at the planned time. Katie was very excited and happy all the time to welcome the Santa. My mother was enjoying watching Katie welcoming this special guest. As Santa turned to leave he looked again into his bag and took out one more gift. As he asked who Alice was, my mother, without thinking of her name being called, said that she in fact was Alice. Santa handed her the gift with a message card that read: For Alice: I was cleaning out my sleigh before my trip this year and came across this package that should be sent on December 25, 1925. The gift inside has aged, but I felt that you might still wish to have it. Many apologies for the lateness of the gift. Love, Santa Claus My mother was very excited and deeply moved to tears. She couldn't speak but only held tightly in her arms the doll she had waited fifty-seven years to receive as tears of joy flew down her face. That doll made my mother the happiest \"child\".";
+            document.getElementById("question").value="Why didn't Alice expect there was also a gift for her?";
+            document.getElementById("options").value="A. The gifts from Santa Claus were usually for children.\nB. The gift was forgotten many years ago.\nC. The gift for her was bought by accident on the way.\nD. The gifts for Katie were enough to share with her.";
+
+            var button = document.getElementById("GetAnswer");
+            button.onclick = function (){
+                var para = document.getElementById("passage");
+                var ques = document.getElementById("question");
+                var opt = document.getElementById("options");
+                console.log("hitting");
+                hit(para.value, ques.value, opt.value);
+            };
+        </script>
+    </body>
+</html>
