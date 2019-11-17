@@ -46,6 +46,10 @@ config = Config(ACCESS_KEY_ID, SECRET_ACCESS_KEY)
 qingstor = QingStor(config)
 bucket = qingstor.Bucket('mrc-lxm', 'pek3b')
 
+
+# -- translate --
+from translate import translate
+
 def clear_unascii(s):
     return ''.join([c for c in s if ascii.isascii(c)])
 
@@ -110,7 +114,7 @@ class Demo(object):
         run_event = threading.Event()
         run_event.set()
         threading.Thread(target=self.demo_backend, args = [model, run_event]).start()
-        app.run(port=8080, host='0.0.0.0', debug=False)
+        app.run(port=80, host='0.0.0.0', debug=False)
         try:
             while 1:
                 sleep(.1)
@@ -247,14 +251,18 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
         run = p.add_run('文章:\n')
         doc = '#####'.join(doc)
         doc_sent = cut_sent(doc)
+        trans_doc_sent = translate('\n'.join([''.join(_.split('#####')) for _ in doc_sent]))
         w_i = 0
         total_sent = len(doc_sent)
+        colors = []
         for sent in doc_sent:
             sent = sent.split('#####')
             total_score = 0.
             for w in sent:
                 if not w:
                     continue
+                if w_i >= len(weight):
+                    break
                 wei= weight[w_i]
                 w_i += 1
                 if wei > 10. / len(weight):
@@ -275,9 +283,15 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
                 color = RGBColor(0,128,0)
             else:
                 color = RGBColor(0,0,0)
+            colors.append(color)
             for w in sent:
                 run = p.add_run(w)
                 run.font.color.rgb = color
+        run = p.add_run('\n翻译:\n')
+        for _, trans_sent in enumerate(trans_doc_sent):
+            for w in trans_sent:
+                run = p.add_run(w)
+                run.font.color.rgb = colors[_]
  
             # for w, wei in zip(doc, weight):
 #                 if w == '\n':
