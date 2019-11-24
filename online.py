@@ -132,51 +132,9 @@ class Demo(object):
                 if not os.path.exists(tmp_path):
                     os.mkdir(tmp_path)
                 # response = '答案:' + '计算中，请稍等...'
-                if query[0].startswith('问题和选项如:'):
-                    query[0] = query[0][8:]
-                if query[1].startswith('文章如:'):
-                    query[1] = query[1][5:]
-                context = query[1].replace("''", '" ').replace("``", '" ')
-                qas = query[0]
-                qas = qas.replace('。', '.').replace('，', ',').replace('？', 
-				'?').replace('！', '!').replace('（', '(').replace('）', 
-				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
-                context = context.replace('。', '.').replace('，', ',').replace('？', 
-				'?').replace('！', '!').replace('（', '(').replace('）', 
-				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
-                qas = clear_unascii(qas)
-                context = clear_unascii(context)
-                flag = True
-                q = ""
-                all_qas = []
-                ori_qas = []
-                options = []
-                for _ in qas.strip().split('\n'):
-                    if flag:
-                        q = _.strip()
-                        flag = False
-                        continue
-                    if _ == "":
-                        if len(options) == 1:
-                            options = options[0].replace('\t', ' ').strip().split(' ')
-                            options = [_ for _ in options if len(_) > 0]
-                        ori_qas.append('\n'.join([q] + options))
-                        options = [re.sub('^[ABCD]\.', '', o).strip() for o in options]
-                        options = [re.sub('^[ABCD] ', '', o).strip() for o in options]
-                        all_qas.append([q + ' ' + o for o in options])
-                        flag = True
-                        options = []
-                        continue
-                    options.append(_)
-                if options:
-                    if len(options) == 1:
-                        options = re.split('[A-Z][\. ]', options[0].replace('\t', ' ').strip())
-                        options = [_.strip() for _ in options if len(_) > 0]
-                    ori_qas.append('\n'.join([q] + options))
-                    options = [re.sub('^[A-Z]\.', '', o).strip() for o in options]
-                    options = [re.sub('^[A-Z] ', '', o).strip() for o in options]
-                    all_qas.append([q + ' ' + o for o in options])
-                print(all_qas)
+                qas, context = query[0], query[1]
+                qas, context = preprocess_query_and_doc(qas, context)
+                all_qas, ori_qas, options = get_format_output(qas, context)
                 if debug:
                     response = []
                     # with open(os.path.join(tmp_path, fname), 'w') as fw:
@@ -188,39 +146,97 @@ class Demo(object):
                     response = ['答案:' + 'A', '{}{}'.format(prefix, fname)]
                     query = []
                     continue
-                ans = ""
-                answers = []
-                confidents = []
-                docs = []
-                weights = []
-                for qas in all_qas:
-                    ts = []
-                    for qa in qas:
-                        inp = model.encode(qa, context)
-                        ts.append(inp)
-                    batch = collate_tokens(ts, pad_idx=1)
-                    # print(model.extract_features_aligned_to_words(qa))
-                    logits, last_attn = model.predict('sentence_classification_head', batch, return_logits=True)
-                    logits = torch.nn.functional.softmax(logits.squeeze())
-                    print(last_attn.shape)
-                    logits = logits.tolist()
-                    logits = np.asarray(logits).flatten()
-                    print(logits)
-                    answer = np.argmax(logits)
-                    confident = logits[answer]
-                    print(torch.max(last_attn[answer, 0, :]))
-                    print(torch.sum(last_attn[answer, 0, :]))
-                    toks, attns = model.extract_attention_to_words(qas[answer], context, last_attn[answer, 0, :].squeeze())
-                    attns = attns.tolist()
-                    ans += chr(ord('A') + answer)
-                    answers.append(chr(ord('A') + answer))
-                    confidents.append(confident)
-                    docs.append(toks)
-                    weights.append(attns)
-                extract_word_file(docs, weights, ori_qas, answers, confidents, fname)
-                # response = []
-                response = ['答案:' + ans, '{}{}'.format(prefix, fname)]
+                response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
                 query = []
+
+
+def preprocess_query_and_doc(query, context):
+    if query.startswith('问题和选项如:'):
+        query = query[8:]
+    if context.startswith('文章如:'):
+        context = context[5:]
+    context = context.replace("''", '" ').replace("``", '" ')
+    qas = query
+    qas = qas.replace('。', '.').replace('，', ',').replace('？', 
+				'?').replace('！', '!').replace('（', '(').replace('）', 
+				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
+    context = context.replace('。', '.').replace('，', ',').replace('？', 
+				'?').replace('！', '!').replace('（', '(').replace('）', 
+				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
+    qas = clear_unascii(qas)
+    context = clear_unascii(context)
+    return qas, context
+
+
+def get_format_output(qas, context):
+    flag = True
+    q = ""
+    all_qas = []
+    ori_qas = []
+    options = []
+    for _ in qas.strip().split('\n'):
+        if flag:
+            q = _.strip()
+            flag = False
+            continue
+        if _ == "":
+            if len(options) == 1:
+                options = options[0].replace('\t', ' ').strip().split(' ')
+                options = [_ for _ in options if len(_) > 0]
+            ori_qas.append('\n'.join([q] + options))
+            options = [re.sub('^[ABCD]\.', '', o).strip() for o in options]
+            options = [re.sub('^[ABCD] ', '', o).strip() for o in options]
+            all_qas.append([q + ' ' + o for o in options])
+            flag = True
+            options = []
+            continue
+        options.append(_)
+    if options:
+        if len(options) == 1:
+            options = re.split('[A-Z][\. ]', options[0].replace('\t', ' ').strip())
+            options = [_.strip() for _ in options if len(_) > 0]
+        ori_qas.append('\n'.join([q] + options))
+        options = [re.sub('^[A-Z]\.', '', o).strip() for o in options]
+        options = [re.sub('^[A-Z] ', '', o).strip() for o in options]
+        all_qas.append([q + ' ' + o for o in options])
+    print(all_qas)
+    return all_qas, ori_qas, options
+
+
+def get_MRC_answer(fname, context, all_qas, ori_qas, options):
+    ans = ""
+    answers = []
+    confidents = []
+    docs = []
+    weights = []
+    for qas in all_qas:
+        ts = []
+        for qa in qas:
+            inp = model.encode(qa, context)
+            ts.append(inp)
+        batch = collate_tokens(ts, pad_idx=1)
+        # print(model.extract_features_aligned_to_words(qa))
+        logits, last_attn = model.predict('sentence_classification_head', batch, return_logits=True)
+        logits = torch.nn.functional.softmax(logits.squeeze())
+        print(last_attn.shape)
+        logits = logits.tolist()
+        logits = np.asarray(logits).flatten()
+        print(logits)
+        answer = np.argmax(logits)
+        confident = logits[answer]
+        print(torch.max(last_attn[answer, 0, :]))
+        print(torch.sum(last_attn[answer, 0, :]))
+        toks, attns = model.extract_attention_to_words(qas[answer], context, last_attn[answer, 0, :].squeeze())
+        attns = attns.tolist()
+        ans += chr(ord('A') + answer)
+        answers.append(chr(ord('A') + answer))
+        confidents.append(confident)
+        docs.append(toks)
+        weights.append(attns)
+    extract_word_file(docs, weights, ori_qas, answers, confidents, fname)
+    # response = []
+    response = ['答案:' + ans, '{}{}'.format(prefix, fname)]
+    return response
 
 def cut_sent(para):
     para = re.sub('([\.!\?] ?)([^\'"]) ?', r"\1@@@@@\2", para)  # 单字符断句符
