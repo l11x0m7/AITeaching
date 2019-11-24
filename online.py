@@ -104,7 +104,7 @@ def answer():
     while not response:
         sleep(0.1)
     print("received response: {}".format(str(response)))
-    response_ = {"answer": response[0], "url": response[1]}
+    response_ = {"answer": response[0], "url": response[1], "detail": response[2]}
     response = []
     return response_
 
@@ -139,15 +139,17 @@ class Demo(object):
                     response = []
                     # with open(os.path.join(tmp_path, fname), 'w') as fw:
                     #     fw.write('\n\n'.join([context, '\n\n'.join(['\n'.join(_) for _ in all_qas])]))
-                    extract_word_file([context for _ in range(len(ori_qas))], 
-                                       [[1 for _ in range(len(context.split(' ')))] for __ in range(len(ori_qas))], 
-                                       ori_qas, ['A' for _ in range(len(ori_qas))], [0.9 for _ in range(len(ori_qas))], fname)
+                    # extract_word_file([context for _ in range(len(ori_qas))], 
+                    #                    [[1 for _ in range(len(context.split(' ')))] for __ in range(len(ori_qas))], 
+                    #                    ori_qas, ['A' for _ in range(len(ori_qas))], [0.9 for _ in range(len(ori_qas))], fname)
+                    details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
                     
-                    response = ['答案:' + 'A', '{}{}'.format(prefix, fname)]
+                    
+                    response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
                     query = []
-                    continue
-                response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
-                query = []
+                else:
+                    response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
+                    query = []
 
 
 def preprocess_query_and_doc(query, context):
@@ -347,7 +349,7 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
 
 if __name__ == '__main__':
     model = ""
-    debug = False
+    debug = True
     if not debug:
         roberta = RobertaModel.from_pretrained('checkpoints/', checkpoint_file='ck.pt', data_name_or_path='data/processed_RACE/')
         roberta.eval()
