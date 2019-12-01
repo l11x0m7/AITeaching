@@ -42,12 +42,12 @@
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", '/MRC', true);
                 xhr.setRequestHeader("Content-type", "application/json");
-                xhr.onreadystatechange = function () {
-                    console.log(xhr.status);
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        myWindow=window.open('','_blank','width=1366,height=768');
-                        myWindow.document.write(xhr.responseText);
-                        myWindow.focus();
+                // xhr.onreadystatechange = function () {
+                    // console.log(xhr.status);
+                    // if (xhr.readyState === 4 && xhr.status === 200) {
+                        // myWindow=window.open('','_blank','width=1366,height=768');
+                        // myWindow.document.write(xhr.responseText);
+                        // myWindow.focus();
 //                        var json = JSON.parse(xhr.responseText);
 //                        if (json.state_code == "error") {
 //                            alert("发生错误！");
@@ -65,8 +65,8 @@
 //                        // 提交表单，实现下载
 //                        $eleForm.submit();
 //                        console.log("downloaded");
-                    }
-                };
+                    // }
+                // };
                 var params = JSON.stringify({"question": question, "passage": passage});
                 xhr.send(params);
                 console.log("sent");
@@ -228,29 +228,29 @@
                     </a>
                 </div>
 		-->
-                         <form class="contact_form" id="contact_form">
+                         <form class="contact_form" id="contact_form", action="/MRC", method="POST">
                             <div class="contact-row">
                                   <i class="fa fa-comment"></i>
-        <textarea id='passage' style="height:300px" placeholder="文章如:&#13;&#10;Do you love holidays but hate the increase weight that follows? You are not alone.&#13;&#10;Holidays are happy days with pleasure and delicious foods. Many people, however, are worried about the weight that comes along with these delicious foods.&#13;&#10;With proper planning, though, it is possible to control your weight. The idea is to enjoy the holidays but not to eat too much. You don't have to turn away from the foods that you enjoy. The following suggestions may be of some help to you.&#13;&#10;Do not miss meals. Before yon leave home for a feast,have a small, low-fat snack. This may help to keep you from getting too excited before delicious foods. Begin with clear soup and fruit or vegetables. A large glass of water before you eat may help you feel full. Use a small plate; a large plate will encourage you to have more than enough.&#13;&#10;Better not have high-fat foods. Dishes that look oily or creamy have much fat in them.&#13;&#10;Choose lean meat.Fill your plate with salad and green vegetables.&#13;&#10;If you have a sweet tooth, try mints and fruits. They don't have fat content as cream and chocolate.&#13;&#10;Don't let exercise take a break during the holidays. A 20-minute walk after a meal can help burn off excess calories."></textarea>
+        <textarea id='passage' name='passage' style="height:300px" placeholder="文章如:&#13;&#10;Do you love holidays but hate the increase weight that follows? You are not alone.&#13;&#10;Holidays are happy days with pleasure and delicious foods. Many people, however, are worried about the weight that comes along with these delicious foods.&#13;&#10;With proper planning, though, it is possible to control your weight. The idea is to enjoy the holidays but not to eat too much. You don't have to turn away from the foods that you enjoy. The following suggestions may be of some help to you.&#13;&#10;Do not miss meals. Before yon leave home for a feast,have a small, low-fat snack. This may help to keep you from getting too excited before delicious foods. Begin with clear soup and fruit or vegetables. A large glass of water before you eat may help you feel full. Use a small plate; a large plate will encourage you to have more than enough.&#13;&#10;Better not have high-fat foods. Dishes that look oily or creamy have much fat in them.&#13;&#10;Choose lean meat.Fill your plate with salad and green vegetables.&#13;&#10;If you have a sweet tooth, try mints and fruits. They don't have fat content as cream and chocolate.&#13;&#10;Don't let exercise take a break during the holidays. A 20-minute walk after a meal can help burn off excess calories."></textarea>
                             </div>
                             <div class="contact-row">
                                   <i class="fa fa-question"></i>
-        			  <textarea id='question' style="height:300px" placeholder="问题和选项如:&#13;&#10;66. Holidays are happy days with pleasure but they may ______&#13;&#10;A. bring weight problems&#13;&#10;B. bring you much trouble in your life&#13;&#10;C. make you worried about your foods&#13;&#10;D. make you hate delicious foods&#13;&#10;&#13;&#10;67. In order to really enjoy your holidays without putting on weight, you'd better__&#13;&#10;A. drink much water and have vegetables only&#13;&#10;B. not eat the food in high fat&#13;&#10;C. not accept invitations to feasts&#13;&#10;D. turn away from delicious foods&#13;&#10;&#13;&#10;68. According to the passage, ___ is a necessary part to stop you from putting on weight.&#13;&#10;A. vegetables&#13;&#10;B. water&#13;&#10;C. calories of energy&#13;&#10;D. physical exercise&#13;&#10;&#13;&#10;69. Many people can't help putting on weight after the holidays because they _______ .&#13;&#10;A. can't control themselves &#13;&#10;B. go to too many feasts&#13;&#10;C. enjoy delicious foods &#13;&#10;D. can't help turning away from the foods&#13;&#10;&#13;&#10;70. Excess calories can be found in your body in the form of___ .&#13;&#10;A. energy &#13;&#10;B. fat &#13;&#10;C. food &#13;&#10;D. something invisible"></textarea>
+        			  <textarea id='question' name='question' style="height:300px" placeholder="问题和选项如:&#13;&#10;66. Holidays are happy days with pleasure but they may ______&#13;&#10;A. bring weight problems&#13;&#10;B. bring you much trouble in your life&#13;&#10;C. make you worried about your foods&#13;&#10;D. make you hate delicious foods&#13;&#10;&#13;&#10;67. In order to really enjoy your holidays without putting on weight, you'd better__&#13;&#10;A. drink much water and have vegetables only&#13;&#10;B. not eat the food in high fat&#13;&#10;C. not accept invitations to feasts&#13;&#10;D. turn away from delicious foods&#13;&#10;&#13;&#10;68. According to the passage, ___ is a necessary part to stop you from putting on weight.&#13;&#10;A. vegetables&#13;&#10;B. water&#13;&#10;C. calories of energy&#13;&#10;D. physical exercise&#13;&#10;&#13;&#10;69. Many people can't help putting on weight after the holidays because they _______ .&#13;&#10;A. can't control themselves &#13;&#10;B. go to too many feasts&#13;&#10;C. enjoy delicious foods &#13;&#10;D. can't help turning away from the foods&#13;&#10;&#13;&#10;70. Excess calories can be found in your body in the form of___ .&#13;&#10;A. energy &#13;&#10;B. fat &#13;&#10;C. food &#13;&#10;D. something invisible"></textarea>
                             </div>
         		<p id='note'>注:1. 提交后会导出报告; 2. 请按照示例格式输入，否则会失败; 3. 目前在初高中题以及四六级题中准确率约80%</p>
-        		<p id='answer'>答案:提交后希望您能耐心等待(每个问题大概需要5-10秒响应)</p>
-                            <button type="button" id="GetAnswer" class="btn btn-primary btn-large btn-clear">提交 <i class="fa fa-upload"></i></button>
+        		<!-- <p id='answer'>答案:提交后希望您能耐心等待(每个问题大概需要5-10秒响应)</p> -->
+                            <button type="submit" id="GetAnswer" class="btn btn-primary btn-large btn-clear">提交 <i class="fa fa-upload"></i></button>
         <script>
             // document.getElementById("passage").value="文章如:\nDo you love holidays but hate the increase weight that follows? You are not alone.\nHolidays are happy days with pleasure and delicious foods. Many people, however, are worried about the weight that comes along with these delicious foods.\nWith proper planning, though, it is possible to control your weight. The idea is to enjoy the holidays but not to eat too much. You don't have to turn away from the foods that you enjoy. The following suggestions may be of some help to you.\nDo not miss meals. Before yon leave home for a feast,have a small, low-fat snack. This may help to keep you from getting too excited before delicious foods. Begin with clear soup and fruit or vegetables. A large glass of water before you eat may help you feel full. Use a small plate; a large plate will encourage you to have more than enough.\nBetter not have high-fat foods. Dishes that look oily or creamy have much fat in them.\nChoose lean meat.Fill your plate with salad and green vegetables.\nIf you have a sweet tooth, try mints and fruits. They don't have fat content as cream and chocolate.\nDon't let exercise take a break during the holidays. A 20-minute walk after a meal can help burn off excess calories.";
             // document.getElementById("question").value="问题和选项如:\n66. Holidays are happy days with pleasure but they may ______\nA. bring weight problems\nB. bring you much trouble in your life\nC. make you worried about your foods\nD. make you hate delicious foods\n\n67. In order to really enjoy your holidays without putting on weight, you'd better__\nA. drink much water and have vegetables only\nB. not eat the food in high fat\nC. not accept invitations to feasts\nD. turn away from delicious foods\n\n68. According to the passage, ___ is a necessary part to stop you from putting on weight.\nA. vegetables\nB. water\nC. calories of energy\nD. physical exercise\n\n69. Many people can't help putting on weight after the holidays because they _______ .\nA. can't control themselves \nB. go to too many feasts\nC. enjoy delicious foods \nD. can't help turning away from the foods\n\n70. Excess calories can be found in your body in the form of___ .\nA. energy \nB. fat \nC. food \nD. something invisible";
 
-            var button = document.getElementById("GetAnswer");
-            button.onclick = function (){
-                var para = document.getElementById("passage");
-                var ques = document.getElementById("question");
-                console.log("hitting");
-                hit(para.value, ques.value);
-            };
+            //var button = document.getElementById("GetAnswer");
+            //button.onclick = function (){
+            //    var para = document.getElementById("passage");
+            //    var ques = document.getElementById("question");
+            //    console.log("hitting");
+            //    hit(para.value, ques.value);
+            //};
         </script>
 			</form>
             </div>

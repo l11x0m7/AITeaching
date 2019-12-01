@@ -110,10 +110,14 @@ def home():
 
 @app.route('/MRC', methods=["POST"])
 def MRC():
-    passage = request.json['passage']
-    question = request.json['question']
+    # passage = request.json['passage']
+    # question = request.json['question']
+    passage = request.form['passage']
+    question = request.form['question']
     print("received question: {}".format(question))
     print("received passage: {}".format(passage))
+    if passage == '' or question == '':
+        return redirect('/')
     # if not passage or not question:
     #     exit()
     global query, response, state_code
@@ -124,12 +128,13 @@ def MRC():
 
     if state_code == 'error':
         response_ = {"state_code": state_code}
+        out = render_template('error.html')
     else:
         response_ = {"answer": response[0], "url": response[1], "detail": response[2], "state_code": state_code}
+        out = render_template('answer.html', detail=response_["detail"], url=response_["url"])
     state_code = 'true'
     response = []
-    return render_template('answer.html', detail=response_["detail"])
-    # return response_
+    return out
 
 
 # class Demo(object):
@@ -397,7 +402,7 @@ def MRC_backend(model, run_event):
                 all_qas, ori_qas, options = get_format_output(qas, context)
                 if debug:
                     response = []
-                    details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
+                    details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 2, 1], 2), ("q2", ["op21", "op22", "op23", "op24"], [0, 3, 4], 3)]}
                     response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
                     query = []
                 else:

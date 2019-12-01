@@ -31,10 +31,10 @@
                         <nav class="tm-main-nav">
                             <ul class="tm-main-nav-ul ">
                             {% for qas in detail.qas %}
-                                <li class="tm-nav-item" onclick="highlight(this, {{qas.2}})">
-                                    <h3>{{qas.0}}</h3>
+                                <li class="tm-nav-item" onclick="highlight(this, {{qas[2]}}, {{qas[3]}})">
+                                    <h3>{{qas[0]}}</h3>
                                     <ul>
-                                        {% for op in qas.1 %}
+                                        {% for op in qas[1] %}
                                         <li style="list-style-type:none;margin:5px 0px;">{{ op }}</li>
                                         {% endfor %}
                                     </ul>
@@ -58,10 +58,11 @@
                                         </section>
                                         <section class="tm-section">
                                     {% else %}
-                                        <span class="sentence" id="sentence{{i}}" title="{{detail['trans'][i]}}">{{detail.doc.i}}</span>
+                                        <span class="sentence" id="sentence{{i}}" title="{{detail.trans[i]}}">{{detail.doc[i]}}</span>
                                     {% endif %}
                                 {% endfor %}
                             </section>
+                            <a href="{{url}}">下载分析报告</a>
                         </div>
                     </div> <!-- Right column: content -->
                 </div>
@@ -73,18 +74,20 @@
         <script src="js/answer/jquery.magnific-popup.min.js"></script>     <!-- Magnific pop-up (http://dimsemenov.com/plugins/magnific-popup/) -->
         <script src="js/answer/jquery.singlePageNav.min.js"></script>      <!-- Single Page Nav (https://github.com/ChrisWojcik/single-page-nav) -->
         <script>
-            function highlight(ele, sentencesNo){
+            function highlight(ele, sentencesNo, answerNo){
                 $("li.tm-nav-item.active").removeClass("active");
+                $("li.correct").removeClass("correct");
                 $(ele).addClass("active");
                 for(var i=0; i < $("span.sentence").size();i++){
                     $($("span.sentence")[i]).attr("class","sentence");
                 }
                 var level = 0;
-                for(var i in sentencesNo){
-                    var sentenceId ='sentence' + sentencesNo[i];
-                    $("span#"+sentenceId).addClass("relative-level-"+level);
+                for(var i=0; i < sentencesNo.length; i++){
+                    var sentenceId ='sentence' + i;
+                    $("span#"+sentenceId).addClass("relative-level-"+sentencesNo[i]);
                     level += 1;
                 }
+                $($(ele).find('li')[answerNo]).attr("class","correct");
             }
         </script>
 </body>
