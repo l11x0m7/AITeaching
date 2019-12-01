@@ -30,14 +30,26 @@
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 
         <script>
-            function hit(passage, question, options){
+            function hit(passage, question){
+                if (passage == "") {
+                    alert("请填写文章！");
+                    return;
+                }
+                if (question == "") {
+                    alert("请填写问题和选项！");
+                    return;
+                }
                 var xhr = new XMLHttpRequest();
-                xhr.open("POST", '/answer', true);
+                xhr.open("POST", '/MRC', true);
                 xhr.setRequestHeader("Content-type", "application/json");
                 xhr.onreadystatechange = function () {
                     console.log(xhr.status);
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         var json = JSON.parse(xhr.responseText);
+                        if (json.state_code == "error") {
+                            alert("发生错误！");
+                            return;
+                        }
                         console.log(json.answer);
                         console.log(json.url);
                         var ans = document.getElementById("answer");

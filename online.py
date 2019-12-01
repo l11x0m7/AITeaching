@@ -19,6 +19,7 @@ from bottle import get, post, request, route, run, template, static_file
 import threading
 import json
 import numpy as np
+import traceback
 
 from time import sleep
 
@@ -54,13 +55,9 @@ def clear_unascii(s):
     return ''.join([c for c in s if ascii.isascii(c)])
 
 
-'''
-This file is taken and modified from R-Net by Minsangkim142
-https://github.com/minsangkim142/R-net
-'''
-
 query = []
 response = []
+state_code = "true"
 app = bottle.Bottle()
 
 
@@ -91,65 +88,70 @@ def home():
         html = fl.read()
         return html
 
-@app.post('/answer')
-def answer():
+
+@app.post('/MRC')
+def MRC():
     passage = bottle.request.json['passage']
     question = bottle.request.json['question']
     print("received question: {}".format(question))
     print("received passage: {}".format(passage))
     # if not passage or not question:
     #     exit()
-    global query, response
+    global query, response, state_code
     query = [question, passage]
     while not response:
         sleep(0.1)
     print("received response: {}".format(str(response)))
-    response_ = {"answer": response[0], "url": response[1], "detail": response[2]}
+
+    if state_code == 'error':
+        response_ = {"state_code": state_code}
+    else:
+        response_ = {"answer": response[0], "url": response[1], "detail": response[2], "state_code": state_code}
+    state_code = 'true'
     response = []
     return response_
 
 
-class Demo(object):
-    def __init__(self, model):
-        run_event = threading.Event()
-        run_event.set()
-        threading.Thread(target=self.demo_backend, args = [model, run_event]).start()
-        app.run(port=80, host='0.0.0.0', debug=False)
-        try:
-            while 1:
-                sleep(.1)
-        except KeyboardInterrupt:
-            print("Closing server...")
-            run_event.clear()
-
-    def demo_backend(self, model, run_event):
-        global query, response
-
-        while run_event.is_set():
-            sleep(0.1)
-            if query:
-                fname = 'mrc_{}.docx'.format(uuid.uuid1())
-                if not os.path.exists(tmp_path):
-                    os.mkdir(tmp_path)
-                # response = '答案:' + '计算中，请稍等...'
-                qas, context = query[0], query[1]
-                qas, context = preprocess_query_and_doc(qas, context)
-                all_qas, ori_qas, options = get_format_output(qas, context)
-                if debug:
-                    response = []
-                    # with open(os.path.join(tmp_path, fname), 'w') as fw:
-                    #     fw.write('\n\n'.join([context, '\n\n'.join(['\n'.join(_) for _ in all_qas])]))
-                    # extract_word_file([context for _ in range(len(ori_qas))], 
-                    #                    [[1 for _ in range(len(context.split(' ')))] for __ in range(len(ori_qas))], 
-                    #                    ori_qas, ['A' for _ in range(len(ori_qas))], [0.9 for _ in range(len(ori_qas))], fname)
-                    details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
-                    
-                    
-                    response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
-                    query = []
-                else:
-                    response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
-                    query = []
+# class Demo(object):
+#     def __init__(self, model):
+#         run_event = threading.Event()
+#         run_event.set()
+#         threading.Thread(target=self.demo_backend, args = [model, run_event]).start()
+#         app.run(port=80, host='0.0.0.0', debug=False)
+#         try:
+#             while 1:
+#                 sleep(.1)
+#         except KeyboardInterrupt:
+#             print("Closing server...")
+#             run_event.clear()
+# 
+#     def demo_backend(self, model, run_event):
+#         global query, response
+#         while run_event.is_set():
+#             sleep(0.1)
+#             if query:
+#                 fname = 'mrc_{}.docx'.format(uuid.uuid1())
+#                 if not os.path.exists(tmp_path):
+#                     os.mkdir(tmp_path)
+#                 # response = '答案:' + '计算中，请稍等...'
+#                 qas, context = query[0], query[1]
+#                 qas, context = preprocess_query_and_doc(qas, context)
+#                 all_qas, ori_qas, options = get_format_output(qas, context)
+#                 if debug:
+#                     response = []
+#                     # with open(os.path.join(tmp_path, fname), 'w') as fw:
+#                     #     fw.write('\n\n'.join([context, '\n\n'.join(['\n'.join(_) for _ in all_qas])]))
+#                     # extract_word_file([context for _ in range(len(ori_qas))], 
+#                     #                    [[1 for _ in range(len(context.split(' ')))] for __ in range(len(ori_qas))], 
+#                     #                    ori_qas, ['A' for _ in range(len(ori_qas))], [0.9 for _ in range(len(ori_qas))], fname)
+#                     details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
+#                     
+#                     
+#                     response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
+#                     query = []
+#                 else:
+#                     response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
+#                     query = []
 
 
 def preprocess_query_and_doc(query, context):
@@ -346,6 +348,43 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
     os.remove(os.path.join(tmp_path, fname))
         
 
+def run(model, debug=False):
+    run_event = threading.Event()
+    run_event.set()
+    threading.Thread(target=MRC_backend, args = [model, run_event]).start()
+    app.run(port=80, host='0.0.0.0', debug=debug)
+    try:
+        while 1:
+            sleep(.1)
+    except KeyboardInterrupt:
+        print("Closing server...")
+        run_event.clear()
+
+def MRC_backend(model, run_event):
+    global query, response, state_code
+    while run_event.is_set():
+        sleep(0.1)
+        try:
+            if query:
+                fname = 'mrc_{}.docx'.format(uuid.uuid1())
+                if not os.path.exists(tmp_path):
+                    os.mkdir(tmp_path)
+                # response = '答案:' + '计算中，请稍等...'
+                qas, context = query[0], query[1]
+                qas, context = preprocess_query_and_doc(qas, context)
+                all_qas, ori_qas, options = get_format_output(qas, context)
+                if debug:
+                    response = []
+                    details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
+                    response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
+                    query = []
+                else:
+                    response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
+                    query = []
+        except:
+            query = []
+            state_code = 'error'
+            traceback.print_exc()
 
 if __name__ == '__main__':
     model = ""
@@ -354,4 +393,5 @@ if __name__ == '__main__':
         roberta = RobertaModel.from_pretrained('checkpoints/', checkpoint_file='ck.pt', data_name_or_path='data/processed_RACE/')
         roberta.eval()
         model = roberta
-    demo = Demo(model)
+    # demo = Demo(model)
+    run(model, debug)
