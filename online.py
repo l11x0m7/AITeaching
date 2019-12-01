@@ -1,176 +1,169 @@
-#!/usr/bin/env python
-# coding=utf-8 
-
-# -- flask --
 import flask
 
 from flask import Flask
-from flask import url_for, make_response, redirect, render_template, request
-from werkzeug.routing import BaseConverter
-class RegexConverter(BaseConverter):
-    def __init__(self, map, *args):
-        self.map = map
-        self.regex = args[0]
+# app = Flask(__name__)
+
+# @app.route('/')
+# def hello_world():
+#    return 'Hello World'
+
+# if __name__ == '__main__':
+#    app.run(host='0.0.0.0', port=8080)
 
 
-# -- bottle --
-# import bottle
-# from bottle import get, post, request, route, run, template, static_file
-
+# !/usr/bin/env python
+# coding=utf-8 
+import bottle
+from bottle import get, post, request, route, run, template, static_file
 import threading
 import json
 import numpy as np
-import traceback
+
 from time import sleep
+
 import os
 import sys
+import torch
+from fairseq.data.data_utils import collate_tokens
+from fairseq.models.roberta import RobertaModel
 import re
 import uuid
 
-# -- doc --
-from docx import Document
-from docx.shared import RGBColor
-from curses import ascii
-
-
-# -- bucket --
 from qingstor.sdk.service.qingstor import QingStor
 from qingstor.sdk.config import Config
 
+from docx import Document
+from docx.shared import RGBColor
+from curses import ascii
 
 ACCESS_KEY_ID = 'KPXLUFSRVNVNZGFCEPDT'
 SECRET_ACCESS_KEY = '9RW7JW2RsIDmArXSdeHhCjYt7A9vHPs6LBT8zSEp'
 prefix = 'https://mrc-lxm.pek3b.qingstor.com/'
 tmp_path = '/tmp/mrc'
+if sys.platform == 'win32':
+    tmp_path = os.path.join(os.environ['TMP'], 'mrc')
+
 
 config = Config(ACCESS_KEY_ID, SECRET_ACCESS_KEY)
 qingstor = QingStor(config)
 bucket = qingstor.Bucket('mrc-lxm', 'pek3b')
 
-# -- model --
-import torch
-from fairseq.data.data_utils import collate_tokens
-from fairseq.models.roberta import RobertaModel
-
 # -- translate --
 from translate import translate
 
 
-# -- utils --
 def clear_unascii(s):
     return ''.join([c for c in s if ascii.isascii(c)])
 
-# -- app start up --
+
+'''
+This file is taken and modified from R-Net by Minsangkim142
+https://github.com/minsangkim142/R-net
+'''
+
 query = []
 response = []
-state_code = "true"
-# app = bottle.Bottle()
-app = Flask(__name__, static_url_path='', static_folder='trendsetter/')
-app.url_map.converters['regex'] = RegexConverter
+app = bottle.Bottle()
 
 
-# @app.route('/img/<regex(".*\.png|.*\.jpg"):filename>/')
-# def server_static(filename):
-#     return make_response(os.path.join('/trendsetter/img/', filename))
-# @app.route('/img/portfolio/<regex(".*\.png|.*\.jpg"):filename>/')
-# def server_static2(filename):
-#     return make_response(os.path.join('/trendsetter/img/portfolio/', filename))
-
-# @app.route('/img/<filename:re:.*\.png|.*\.jpg>')
-# def server_static(filename):
-#     return static_file(filename, root='./trendsetter/img/')
-# @app.route('/img/portfolio/<filename:re:.*\.png|.*\.jpg>')
-# def server_static(filename):
-#     return static_file(filename, root='./trendsetter/img/portfolio/')
-# @app.route('/css/<filename:re:.*\.css>')
-# def server_static(filename):
-#     return static_file(filename, root='./trendsetter/css/')
-# @app.route('/js/<filename:re:.*\.js>')
-# def server_static(filename):
-#     return static_file(filename, root='./trendsetter/js/')
-# @app.route('/js/vendor/<filename:re:.*\.js>')
-# def server_static(filename):
-#     return static_file(filename, root='./trendsetter/js/vendor/')
-# @app.route('/<filename:re:.*\.html>')
-# def server_static(filename):
-#     return static_file(filename, root='./trendsetter/')
+@app.route('/img/<filename:re:.*\.png|.*\.jpg>')
+def server_static(filename):
+    return static_file(filename, root='./trendsetter/img/')
 
 
-# -- url route --
-@app.route("/", methods=["GET"])
+@app.route('/img/portfolio/<filename:re:.*\.png|.*\.jpg>')
+def server_static(filename):
+    return static_file(filename, root='./trendsetter/img/portfolio/')
+
+
+@app.route('/css/<filename:re:.*\.css>')
+def server_static(filename):
+    return static_file(filename, root='./trendsetter/css/')
+
+
+@app.route('/js/<filename:re:.*\.js>')
+def server_static(filename):
+    return static_file(filename, root='./trendsetter/js/')
+
+
+@app.route('/js/vendor/<filename:re:.*\.js>')
+def server_static(filename):
+    return static_file(filename, root='./trendsetter/js/vendor/')
+
+
+@app.route('/<filename:re:.*\.html>')
+def server_static(filename):
+    return static_file(filename, root='./trendsetter/')
+
+
+@app.get("/")
 def home():
     # with open('demo.html', 'r') as fl:
-    with open('trendsetter/index.html', 'r') as fl:
+    with open('trendsetter/index.html', 'r',encoding='utf-8') as fl:
         html = fl.read()
         return html
 
 
-@app.route('/MRC', methods=["POST"])
-def MRC():
-    passage = request.json['passage']
-    question = request.json['question']
+@app.post('/answer')
+def answer():
+    passage = bottle.request.json['passage']
+    question = bottle.request.json['question']
     print("received question: {}".format(question))
     print("received passage: {}".format(passage))
     # if not passage or not question:
     #     exit()
-    global query, response, state_code
+    global query, response
     query = [question, passage]
     while not response:
         sleep(0.1)
-    print("received response: {}".format(str(response)))
-
-    if state_code == 'error':
-        response_ = {"state_code": state_code}
-    else:
-        response_ = {"answer": response[0], "url": response[1], "detail": response[2], "state_code": state_code}
-    state_code = 'true'
+    # print("received response: {}".format(str(response)))
+    response_ = {"answer": response[0], "url": response[1], "detail": response[2]}
+    print('qyj', response_["detail"])
     response = []
-    return response_
+    return template('trendsetter/answer.html', detail=response_["detail"])
 
 
-# class Demo(object):
-#     def __init__(self, model):
-#         run_event = threading.Event()
-#         run_event.set()
-#         threading.Thread(target=self.demo_backend, args = [model, run_event]).start()
-#         app.run(port=80, host='0.0.0.0', debug=False)
-#         try:
-#             while 1:
-#                 sleep(.1)
-#         except KeyboardInterrupt:
-#             print("Closing server...")
-#             run_event.clear()
-# 
-#     def demo_backend(self, model, run_event):
-#         global query, response
-#         while run_event.is_set():
-#             sleep(0.1)
-#             if query:
-#                 fname = 'mrc_{}.docx'.format(uuid.uuid1())
-#                 if not os.path.exists(tmp_path):
-#                     os.mkdir(tmp_path)
-#                 # response = '答案:' + '计算中，请稍等...'
-#                 qas, context = query[0], query[1]
-#                 qas, context = preprocess_query_and_doc(qas, context)
-#                 all_qas, ori_qas, options = get_format_output(qas, context)
-#                 if debug:
-#                     response = []
-#                     # with open(os.path.join(tmp_path, fname), 'w') as fw:
-#                     #     fw.write('\n\n'.join([context, '\n\n'.join(['\n'.join(_) for _ in all_qas])]))
-#                     # extract_word_file([context for _ in range(len(ori_qas))], 
-#                     #                    [[1 for _ in range(len(context.split(' ')))] for __ in range(len(ori_qas))], 
-#                     #                    ori_qas, ['A' for _ in range(len(ori_qas))], [0.9 for _ in range(len(ori_qas))], fname)
-#                     details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
-#                     
-#                     
-#                     response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
-#                     query = []
-#                 else:
-#                     response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
-#                     query = []
+class Demo(object):
+    def __init__(self, model):
+        run_event = threading.Event()
+        run_event.set()
+        threading.Thread(target=self.demo_backend, args = [model, run_event]).start()
+        app.run(port=80, host='0.0.0.0', debug=debug)
+        try:
+            while 1:
+                sleep(.1)
+        except KeyboardInterrupt:
+            print("Closing server...")
+            run_event.clear()
+
+    def demo_backend(self, model, run_event):
+        global query, response
+
+        while run_event.is_set():
+            sleep(0.1)
+            if query:
+                fname = 'mrc_{}.docx'.format(uuid.uuid1())
+                if not os.path.exists(tmp_path):
+                    os.mkdir(tmp_path)
+                # response = '答案:' + '计算中，请稍等...'
+                qas, context = query[0], query[1]
+                qas, context = preprocess_query_and_doc(qas, context)
+                all_qas, ori_qas, options = get_format_output(qas, context)
+                if debug:
+                    response = []
+                    # with open(os.path.join(tmp_path, fname), 'w') as fw:
+                    #     fw.write('\n\n'.join([context, '\n\n'.join(['\n'.join(_) for _ in all_qas])]))
+                    # extract_word_file([context for _ in range(len(ori_qas))],
+                    #                    [[1 for _ in range(len(context.split(' ')))] for __ in range(len(ori_qas))],
+                    #                    ori_qas, ['A' for _ in range(len(ori_qas))], [0.9 for _ in range(len(ori_qas))], fname)
+                    details = {"doc": ["This is the passage "*10+'.', "Hello world "*10+'.', "Are you ok "*10+'.', "\n"]*3, "trans": ["这是一篇文章。", "句子2。", "句子3。"]*300, "qas":[("q1", ["op11", "op12", "op13", "op14"], [2, 0, 1]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
+                    response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
+                    query = []
+                else:
+                    response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
+                    query = []
 
 
-# -- functions for MRC --
 def preprocess_query_and_doc(query, context):
     if query.startswith('问题和选项如:'):
         query = query[8:]
@@ -178,11 +171,11 @@ def preprocess_query_and_doc(query, context):
         context = context[5:]
     context = context.replace("''", '" ').replace("``", '" ')
     qas = query
-    qas = qas.replace('。', '.').replace('，', ',').replace('？', 
-				'?').replace('！', '!').replace('（', '(').replace('）', 
+    qas = qas.replace('。', '.').replace('，', ',').replace('？',
+				'?').replace('！', '!').replace('（', '(').replace('）',
 				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
-    context = context.replace('。', '.').replace('，', ',').replace('？', 
-				'?').replace('！', '!').replace('（', '(').replace('）', 
+    context = context.replace('。', '.').replace('，', ',').replace('？',
+				'?').replace('！', '!').replace('（', '(').replace('）',
 				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
     qas = clear_unascii(qas)
     context = clear_unascii(context)
@@ -329,7 +322,7 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
             for w in trans_sent:
                 run = p.add_run(w)
                 run.font.color.rgb = colors[_]
- 
+
             # for w, wei in zip(doc, weight):
 #                 if w == '\n':
 #                     continue
@@ -363,46 +356,7 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
         else:
             print('Upload Failed')
     os.remove(os.path.join(tmp_path, fname))
-        
 
-# -- run all modules
-def run(model, debug=False):
-    run_event = threading.Event()
-    run_event.set()
-    threading.Thread(target=MRC_backend, args = [model, run_event]).start()
-    app.run(port=80, host='0.0.0.0', debug=debug)
-    try:
-        while 1:
-            sleep(.1)
-    except KeyboardInterrupt:
-        print("Closing server...")
-        run_event.clear()
-
-def MRC_backend(model, run_event):
-    global query, response, state_code
-    while run_event.is_set():
-        sleep(0.1)
-        try:
-            if query:
-                fname = 'mrc_{}.docx'.format(uuid.uuid1())
-                if not os.path.exists(tmp_path):
-                    os.mkdir(tmp_path)
-                # response = '答案:' + '计算中，请稍等...'
-                qas, context = query[0], query[1]
-                qas, context = preprocess_query_and_doc(qas, context)
-                all_qas, ori_qas, options = get_format_output(qas, context)
-                if debug:
-                    response = []
-                    details = {"doc": ["This is the passage.", "Sent2.", "Sent3."], "trans": ["这是一篇文章。", "句子2。", "句子3。"], "qas":[("q1", ["op11", "op12", "op13", "op14"], [0, 1, 3]), ("q2", ["op21", "op22", "op23", "op24"], [0, 1, 2])]}
-                    response = ['答案:' + 'A', '{}{}'.format(prefix, fname), details]
-                    query = []
-                else:
-                    response = get_MRC_answer(fname, context, all_qas, ori_qas, options)
-                    query = []
-        except:
-            query = []
-            state_code = 'error'
-            traceback.print_exc()
 
 if __name__ == '__main__':
     model = ""
@@ -411,5 +365,4 @@ if __name__ == '__main__':
         roberta = RobertaModel.from_pretrained('checkpoints/', checkpoint_file='ck.pt', data_name_or_path='data/processed_RACE/')
         roberta.eval()
         model = roberta
-    # demo = Demo(model)
-    run(model, debug)
+    demo = Demo(model)
