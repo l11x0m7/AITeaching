@@ -1,42 +1,42 @@
+#!/usr/bin/env python
+# coding=utf-8 
+
+# -- flask --
 import flask
 
 from flask import Flask
-# app = Flask(__name__)
-
-# @app.route('/')
-# def hello_world():
-#    return 'Hello World'
-
-# if __name__ == '__main__':
-#    app.run(host='0.0.0.0', port=8080)
+from flask import url_for, make_response, redirect, render_template, request
+from werkzeug.routing import BaseConverter
+class RegexConverter(BaseConverter):
+    def __init__(self, map, *args):
+        self.map = map
+        self.regex = args[0]
 
 
+# -- bottle --
+# import bottle
+# from bottle import get, post, request, route, run, template, static_file
 
-#!/usr/bin/env python
-# coding=utf-8 
-import bottle
-from bottle import get, post, request, route, run, template, static_file
 import threading
 import json
 import numpy as np
 import traceback
-
 from time import sleep
-
 import os
 import sys
-import torch
-from fairseq.data.data_utils import collate_tokens
-from fairseq.models.roberta import RobertaModel
 import re
 import uuid
 
-from qingstor.sdk.service.qingstor import QingStor
-from qingstor.sdk.config import Config
-
+# -- doc --
 from docx import Document
 from docx.shared import RGBColor
 from curses import ascii
+
+
+# -- bucket --
+from qingstor.sdk.service.qingstor import QingStor
+from qingstor.sdk.config import Config
+
 
 ACCESS_KEY_ID = 'KPXLUFSRVNVNZGFCEPDT'
 SECRET_ACCESS_KEY = '9RW7JW2RsIDmArXSdeHhCjYt7A9vHPs6LBT8zSEp'
@@ -47,41 +47,57 @@ config = Config(ACCESS_KEY_ID, SECRET_ACCESS_KEY)
 qingstor = QingStor(config)
 bucket = qingstor.Bucket('mrc-lxm', 'pek3b')
 
+# -- model --
+import torch
+from fairseq.data.data_utils import collate_tokens
+from fairseq.models.roberta import RobertaModel
 
 # -- translate --
 from translate import translate
 
+
+# -- utils --
 def clear_unascii(s):
     return ''.join([c for c in s if ascii.isascii(c)])
 
-
+# -- app start up --
 query = []
 response = []
 state_code = "true"
-app = bottle.Bottle()
+# app = bottle.Bottle()
+app = Flask(__name__, static_url_path='', static_folder='trendsetter/')
+app.url_map.converters['regex'] = RegexConverter
 
 
-@app.route('/img/<filename:re:.*\.png|.*\.jpg>')
-def server_static(filename):
-    return static_file(filename, root='./trendsetter/img/')
-@app.route('/img/portfolio/<filename:re:.*\.png|.*\.jpg>')
-def server_static(filename):
-    return static_file(filename, root='./trendsetter/img/portfolio/')
-@app.route('/css/<filename:re:.*\.css>')
-def server_static(filename):
-    return static_file(filename, root='./trendsetter/css/')
-@app.route('/js/<filename:re:.*\.js>')
-def server_static(filename):
-    return static_file(filename, root='./trendsetter/js/')
-@app.route('/js/vendor/<filename:re:.*\.js>')
-def server_static(filename):
-    return static_file(filename, root='./trendsetter/js/vendor/')
-@app.route('/<filename:re:.*\.html>')
-def server_static(filename):
-    return static_file(filename, root='./trendsetter/')
+# @app.route('/img/<regex(".*\.png|.*\.jpg"):filename>/')
+# def server_static(filename):
+#     return make_response(os.path.join('/trendsetter/img/', filename))
+# @app.route('/img/portfolio/<regex(".*\.png|.*\.jpg"):filename>/')
+# def server_static2(filename):
+#     return make_response(os.path.join('/trendsetter/img/portfolio/', filename))
+
+# @app.route('/img/<filename:re:.*\.png|.*\.jpg>')
+# def server_static(filename):
+#     return static_file(filename, root='./trendsetter/img/')
+# @app.route('/img/portfolio/<filename:re:.*\.png|.*\.jpg>')
+# def server_static(filename):
+#     return static_file(filename, root='./trendsetter/img/portfolio/')
+# @app.route('/css/<filename:re:.*\.css>')
+# def server_static(filename):
+#     return static_file(filename, root='./trendsetter/css/')
+# @app.route('/js/<filename:re:.*\.js>')
+# def server_static(filename):
+#     return static_file(filename, root='./trendsetter/js/')
+# @app.route('/js/vendor/<filename:re:.*\.js>')
+# def server_static(filename):
+#     return static_file(filename, root='./trendsetter/js/vendor/')
+# @app.route('/<filename:re:.*\.html>')
+# def server_static(filename):
+#     return static_file(filename, root='./trendsetter/')
 
 
-@app.get("/")
+# -- url route --
+@app.route("/", methods=["GET"])
 def home():
     # with open('demo.html', 'r') as fl:
     with open('trendsetter/index.html', 'r') as fl:
@@ -89,10 +105,10 @@ def home():
         return html
 
 
-@app.post('/MRC')
+@app.route('/MRC', methods=["POST"])
 def MRC():
-    passage = bottle.request.json['passage']
-    question = bottle.request.json['question']
+    passage = request.json['passage']
+    question = request.json['question']
     print("received question: {}".format(question))
     print("received passage: {}".format(passage))
     # if not passage or not question:
@@ -154,6 +170,7 @@ def MRC():
 #                     query = []
 
 
+# -- functions for MRC --
 def preprocess_query_and_doc(query, context):
     if query.startswith('问题和选项如:'):
         query = query[8:]
@@ -348,6 +365,7 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
     os.remove(os.path.join(tmp_path, fname))
         
 
+# -- run all modules
 def run(model, debug=False):
     run_event = threading.Event()
     run_event.set()
