@@ -45,23 +45,26 @@
                 xhr.onreadystatechange = function () {
                     console.log(xhr.status);
                     if (xhr.readyState === 4 && xhr.status === 200) {
-                        var json = JSON.parse(xhr.responseText);
-                        if (json.state_code == "error") {
-                            alert("发生错误！");
-                            return;
-                        }
-                        console.log(json.answer);
-                        console.log(json.url);
-                        var ans = document.getElementById("answer");
-                        ans.innerHTML = json.answer;
-
-                        // window.open("https://codeload.github.com/douban/douban-client/legacy.zip/master")
-                        var $eleForm = $("<form method='get'></form>");
-                        $eleForm.attr("action", json.url);
-                        $(document.body).append($eleForm);
-                        // 提交表单，实现下载
-                        $eleForm.submit();
-                        console.log("downloaded");
+                        myWindow=window.open('','_blank','width=1366,height=768');
+                        myWindow.document.write(xhr.responseText);
+                        myWindow.focus();
+//                        var json = JSON.parse(xhr.responseText);
+//                        if (json.state_code == "error") {
+//                            alert("发生错误！");
+//                            return;
+//                        }
+//                        console.log(json.answer);
+//                        console.log(json.url);
+//                        var ans = document.getElementById("answer");
+//                        ans.innerHTML = json.answer;
+//
+//                        // window.open("https://codeload.github.com/douban/douban-client/legacy.zip/master")
+//                        var $eleForm = $("<form method='get'></form>");
+//                        $eleForm.attr("action", json.url);
+//                        $(document.body).append($eleForm);
+//                        // 提交表单，实现下载
+//                        $eleForm.submit();
+//                        console.log("downloaded");
                     }
                 };
                 var params = JSON.stringify({"question": question, "passage": passage});

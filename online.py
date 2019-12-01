@@ -42,6 +42,8 @@ ACCESS_KEY_ID = 'KPXLUFSRVNVNZGFCEPDT'
 SECRET_ACCESS_KEY = '9RW7JW2RsIDmArXSdeHhCjYt7A9vHPs6LBT8zSEp'
 prefix = 'https://mrc-lxm.pek3b.qingstor.com/'
 tmp_path = '/tmp/mrc'
+if sys.platform == 'win32':
+    tmp_path = os.path.join(os.environ['TMP'], 'mrc')
 
 config = Config(ACCESS_KEY_ID, SECRET_ACCESS_KEY)
 qingstor = QingStor(config)
@@ -65,7 +67,7 @@ query = []
 response = []
 state_code = "true"
 # app = bottle.Bottle()
-app = Flask(__name__, static_url_path='', static_folder='trendsetter/')
+app = Flask(__name__, static_url_path='', static_folder='trendsetter/', template_folder='trendsetter/')
 app.url_map.converters['regex'] = RegexConverter
 
 
@@ -100,9 +102,10 @@ app.url_map.converters['regex'] = RegexConverter
 @app.route("/", methods=["GET"])
 def home():
     # with open('demo.html', 'r') as fl:
-    with open('trendsetter/index.html', 'r') as fl:
-        html = fl.read()
-        return html
+    # with open('trendsetter/index.html', 'r') as fl:
+    #     html = fl.read()
+    #     return html
+    return render_template('index.html')
 
 
 @app.route('/MRC', methods=["POST"])
@@ -125,7 +128,8 @@ def MRC():
         response_ = {"answer": response[0], "url": response[1], "detail": response[2], "state_code": state_code}
     state_code = 'true'
     response = []
-    return response_
+    return render_template('answer.html', detail=response_["detail"])
+    # return response_
 
 
 # class Demo(object):
