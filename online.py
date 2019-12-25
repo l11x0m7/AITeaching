@@ -67,7 +67,7 @@ query = []
 response = []
 state_code = "true"
 # app = bottle.Bottle()
-app = Flask(__name__, static_url_path='', static_folder='trendsetter/', template_folder='trendsetter/')
+app = Flask(__name__, static_url_path='', static_folder='website/', template_folder='website/templates/')
 app.url_map.converters['regex'] = RegexConverter
 
 
@@ -105,7 +105,42 @@ def home():
     # with open('trendsetter/index.html', 'r') as fl:
     #     html = fl.read()
     #     return html
-    return render_template('index.html')
+    return render_template('index.html', nav_home_class='active')
+
+
+@app.route("/reading", methods=["GET"])
+def reading():
+    return render_template('reading.html', banner_class='inner-banner', nav_reading_class='active')
+
+
+@app.route("/cloze", methods=["GET"])
+def cloze():
+    return render_template('cloze.html', banner_class='inner-banner', nav_cloze_class='active')
+
+
+@app.route("/ocr", methods=["GET"])
+def ocr():
+    return render_template('ocr.html', banner_class='inner-banner', nav_ocr_class='active')
+
+
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template('about.html', banner_class='inner-banner', nav_help_class='active')
+
+
+@app.route("/support", methods=["GET"])
+def support():
+    return render_template('support.html', banner_class='inner-banner', nav_help_class='active')
+
+
+@app.route("/faq", methods=["GET"])
+def faq():
+    return render_template('faq.html', banner_class='inner-banner', nav_help_class='active')
+
+
+@app.route("/contact", methods=["GET"])
+def contact():
+    return render_template('contact.html', banner_class='inner-banner', nav_help_class='active')
 
 
 @app.route('/MRC', methods=["POST"])
@@ -187,11 +222,11 @@ def preprocess_query_and_doc(query, context):
         context = context[5:]
     context = context.replace("''", '" ').replace("``", '" ')
     qas = query
-    qas = qas.replace('。', '.').replace('，', ',').replace('？', 
-				'?').replace('！', '!').replace('（', '(').replace('）', 
+    qas = qas.replace('。', '.').replace('，', ',').replace('？',
+				'?').replace('！', '!').replace('（', '(').replace('）',
 				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
-    context = context.replace('。', '.').replace('，', ',').replace('？', 
-				'?').replace('！', '!').replace('（', '(').replace('）', 
+    context = context.replace('。', '.').replace('，', ',').replace('？',
+				'?').replace('！', '!').replace('（', '(').replace('）',
 				')').replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"')
     qas = clear_unascii(qas)
     context = clear_unascii(context)
@@ -338,7 +373,7 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
             for w in trans_sent:
                 run = p.add_run(w)
                 run.font.color.rgb = colors[_]
- 
+
             # for w, wei in zip(doc, weight):
 #                 if w == '\n':
 #                     continue
@@ -372,7 +407,7 @@ def extract_word_file(docs, weights, ori_qas, answers, confidents, fname):
         else:
             print('Upload Failed')
     os.remove(os.path.join(tmp_path, fname))
-        
+
 
 # -- run all modules
 def run(model, debug=False):
