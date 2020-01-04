@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}
+<title>阅读理解</title>
+{% endblock %}
+{% block header%}
+<div id="breadcrumb_wrapper">
+	<div class="container">
+		<h3>阅读理解</h3>
+		<h6>Reading Comprehension</h6>
+		<div class="clearfix"></div>
+	</div>
+</div>
+{% endblock %}
+{% block body %}
+<script>
+	var node = document.createElement('link');
+	node.rel = 'stylesheet';
+	node.href = 'css/answer.css';
+	document.getElementsByTagName('head')[0].appendChild(node);
+</script>
+<div class="container">
+	<div>
+		<a href="{{url}}">下载分析报告</a>
+		<section>
+			{% for i in range((detail.doc)|length) %}
+			{% if detail.doc.i == '\n' %}
+		</section>
+		<section>
+			{% else %}
+			<span class="sentence" id="sentence{{i}}" title="{{detail.trans[i]}}">{{detail.doc[i]}}</span>
+			{% endif %}
+			{% endfor %}
+		</section>
+	</div>
+	<div class="border border-dark rounded">
+		<nav>
+        	<div class="nav nav-tabs question" id="nav-tab" role="tablist">
+			{% for qas in detail.qas %}
+            {% if loop.index == 1 %}
+            	<a class="nav-item nav-link show active"
+				   data-toggle="tab"
+				   role="tab"
+				   aria-controls="nav-Q{{loop.index}}"
+				   aria-selected="true"
+				   onclick="highlight(this, {{qas[2]}}, {{qas[3]}})">Q{{loop.index}}</a>
+            {% else %}
+				<a class="nav-item nav-link"
+				   data-toggle="tab"
+				   role="tab"
+				   aria-controls="nav-Q{{loop.index}}"
+				   aria-selected="false"
+				   onclick="highlight(this, {{qas[2]}}, {{qas[3]}})">Q{{loop.index}}</a>
+			{% endif %}
+			{% endfor %}
+        	</div>
+		</nav>
+    	<div class="tab-content" id="nav-tabContent">
+		{% for qas in detail.qas %}
+			<div class="tab-pane fade" id="nav-Q{{loop.index}}" role="tabpanel" aria-labelledby="nav-Q{{loop.index}}">
+				<h3>{{qas[0]}}</h3>
+				<ul>
+				{% for op in qas[1] %}
+					<li>{{ op }}</li>
+				{% endfor %}
+				</ul>
+			</div>
+        {% endfor %}
+		</div>
+		<script>
+			function highlight(ele, sentencesNo, answerNo){
+				// 切换问题及选项
+				var lastActiveTab = $('a.nav-item.nav-link.show.active');
+				lastActiveTab.attr('aria-selected','false');
+				lastActiveTab.removeClass('show active');
+				var newPanelId = $(ele).attr('aria-controls');
+				var newPanelDiv = $('div#'+newPanelId+'.tab-pane.fade');
+  				$(ele).attr('aria-selected','true');
+  				$(ele).addClass('active show');
+  				$('div.tab-pane.fade.show.active').removeClass('show active');
+  				newPanelDiv.addClass('show active');
+
+  				// 正确选项变色
+                $(newPanelDiv.find('li')[answerNo]).attr("class","correct");
+
+                // 清掉句子的颜色
+                for(var i=0; i < $("span.sentence").size();i++){
+                    $($("span.sentence")[i]).attr("class","sentence");
+                }
+                // 句子染上颜色
+                var level = 0;
+                for(var i=0; i < sentencesNo.length; i++){
+                    var sentenceId ='sentence' + i;
+                    $("span#"+sentenceId).addClass("relative-level-"+sentencesNo[i]);
+                    level += 1;
+                }
+            }
+		</script>
+	</div>
+</div>
+{% endblock %}

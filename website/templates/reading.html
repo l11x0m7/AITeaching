@@ -12,130 +12,55 @@
 </div>
 {% endblock %}
 {% block body %}
-	<div class="domain-section">
-		<div class="about_grid">
-		<div class="container">
-			<h4 class="domain-head">Register Domain</h4>
-							<form class="search-form domain-search">
-										<div class="three-fifth domain_row column first">
-											<input type="text" class="text" value="Enter your domain name" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Enter your domain name';}">               
-										</div>
-										<div class="one-fifth column">
-											<span class="selection-box"><select class="domains valid" name="domains">
-												<option>Year(0-1 Year)</option>
-												<option>.info (From $3 / Year)</option>
-												<option>.net (From $3 / Year)</option>
-												<option>.org (From $3 / Year)</option>
-											</select></span>
-										</div>
-										<div class="one-fifth column">
-											<span class="selection-box"><select class="domains valid" name="domains">
-												<option>.com</option>
-												<option>.net</option>
-												<option>.org</option>
-												<option>.in</option>
-											</select></span>
-										</div>
-										<div class="one-fifth column">
-											<input type="submit" value="Search">
-										</div>
-										<div class="clearfix"> </div>
-						   </form>
-				  <div class="domain_box">
-					<h4 class="domain-head1">Other Domain Charges Per Month</h4>
-					<div class="col-md-6 charge_img">
-					   <img src="images/domain.jpg" class="img-responsive" alt=""/>
-					</div>
-					<div class="col-md-6 charge_right">
-						<ul class="charge">
-							<li>.NYC<br><span class="m_12">$</span><span class="m_11">5</span></li>
-							<li>.WIKI<br><span class="m_12">$</span><span class="m_11">5</span></li>
-							<li>.UK<br><span class="m_12">$</span><span class="m_11">3</span></li>
-							<li>.ENG<br><span class="m_12">$</span><span class="m_11">7</span></li>
-							<li>.ML<br><span class="m_12">$</span><span class="m_11">5</span></li>
-							<li class="last">.KM<br><span class="m_12">$</span><span class="m_11">8</span></li>
-							<div class="clearfix"> </div>
-						</ul>
-						<ul class="charge charge_box">
-							<li>.COM<br><span class="m_12">$</span><span class="m_11">5</span></li>
-							<li>.IN<br><span class="m_12">$</span><span class="m_11">1</span></li>
-							<li>.ORG<br><span class="m_12">$</span><span class="m_11">2</span></li>
-							<li>.NET<br><span class="m_12">$</span><span class="m_11">7</span></li>
-							<li>.BIZ<br><span class="m_12">$</span><span class="m_11">5</span></li>
-							<li class="last">.AP<br><span class="m_12">$</span><span class="m_11">8</span></li>
-							<div class="clearfix"> </div>
-						</ul>
-					</div>
-					<div class="clearfix"> </div>
-				 </div>
-		 </div>
-	</div>
-	
-<div class="domain">
 <div class="container">
-<div class="row PageHead">
-<div class="col-md-12">
-<h1>Search Domain</h1>
-<h3>Enter the domain name to register or transfer</h3>
+    <form id="contact_form" action="/MRC" method="POST">
+        <div class="form-group">
+            <label>文章</label>
+            <textarea rows="20" class="form-control" id="passage" name="passage" placeholder="文章如:
+Do you love holidays but hate the increase weight that follows? You are not alone.
+Holidays are happy days with pleasure and delicious foods. Many people, however, are worried about the weight that comes along with these delicious foods.
+With proper planning, though, it is possible to control your weight. The idea is to enjoy the holidays but not to eat too much. You don't have to turn away from the foods that you enjoy. The following suggestions may be of some help to you.
+Do not miss meals. Before yon leave home for a feast,have a small, low-fat snack. This may help to keep you from getting too excited before delicious foods. Begin with clear soup and fruit or vegetables. A large glass of water before you eat may help you feel full. Use a small plate; a large plate will encourage you to have more than enough.
+Better not have high-fat foods. Dishes that look oily or creamy have much fat in them.
+Choose lean meat.Fill your plate with salad and green vegetables.
+If you have a sweet tooth, try mints and fruits. They don't have fat content as cream and chocolate.
+Don't let exercise take a break during the holidays. A 20-minute walk after a meal can help burn off excess calories."></textarea>
+        </div>
+        <div class="form-group">
+            <label>问题及选项</label>
+            <textarea rows="10" class="form-control" id="question" name="question" placeholder="问题和选项如:
+66. Holidays are happy days with pleasure but they may ______
+A. bring weight problems
+B. bring you much trouble in your life
+C. make you worried about your foods
+D. make you hate delicious foods
+
+67. In order to really enjoy your holidays without putting on weight, you'd better__
+A. drink much water and have vegetables only
+B. not eat the food in high fat
+C. not accept invitations to feasts
+D. turn away from delicious foods
+
+68. According to the passage, ___ is a necessary part to stop you from putting on weight.
+A. vegetables
+B. water
+C. calories of energy
+D. physical exercise
+
+69. Many people can't help putting on weight after the holidays because they _______ .
+A. can't control themselves
+B. go to too many feasts
+C. enjoy delicious foods
+D. can't help turning away from the foods
+
+70. Excess calories can be found in your body in the form of___ .
+A. energy
+B. fat
+C. food
+D. something invisible"></textarea>
+        </div>
+        <p id="note">注:1. 提交后会导出报告; 2. 请按照示例格式输入，否则会失败; 3. 目前在初高中题以及四六级题中准确率约80%</p>
+        <button type="submit" id="GetAnswer" class="btn btn-primary">提交</button>
+    </form>
 </div>
-</div>
-<div class="row">
-<div class="col-md-8 col-md-offset-2">
-<form action="" method="post">
-<input type="hidden" name="direct" value="true"/>
-<div class="row">
-<div class="col-sm-12 form-group">
-<div class="input-group">
-<input class="form-control" type="text" name="domain" size="20" placeholder="your domain name"/>
-<span class="input-group-btn">
-<select class="btn btn-default" name="ext">
-<option selected>.com</option>
-<option>.net</option>
-<option>.org</option>
-<option>.biz</option>
-<option>.com.au</option>
-<option>.net.au</option>
-<option>.info</option>
-<option>.asia</option>
-<option>.co.nz</option>
-<option>.org.au</option>
-</select>
-</span> </div>
-</div>
-</div>
-<div class="submitbtn">
-<input type="submit" class="btn btn-success btn-lg" value="Search Domain"/>
-</div>
-</form>
-</div>
-</div>
-</div>
-</div>
-	<div class="new-domains">
-		<div class="container">
-				<h4 class="domain-head1">New Domains</h4>
-				 <div class="new_domain">
-					 <div class="col-md-6">
-							<ul class="list_3">
-								<li><span>.nyc</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.vegas</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.website</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.app</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.ask</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-							</ul>
-						</div>
-						<div class="col-md-6">
-							<ul class="list_3">
-								<li><span>.lip</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.wiki</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.do</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.go</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-								<li><span>.zipo</span><a class="dt-sc-button small" href="#" target="_blank">Register</a></li>
-							</ul>
-						</div>
-						<div class="clearfix"> </div>
-			   </div>
-		 </div>
-	</div>
-	</div>
 {% endblock %}

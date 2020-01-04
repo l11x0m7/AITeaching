@@ -152,7 +152,7 @@ def MRC():
     print("received question: {}".format(question))
     print("received passage: {}".format(passage))
     if passage == '' or question == '':
-        return redirect('/')
+        return redirect('/reading')
     # if not passage or not question:
     #     exit()
     global query, response, state_code
@@ -166,7 +166,8 @@ def MRC():
         out = render_template('error.html')
     else:
         response_ = {"answer": response[0], "url": response[1], "detail": response[2], "state_code": state_code}
-        out = render_template('answer.html', detail=response_["detail"], url=response_["url"])
+        out = render_template('answer.html', detail=response_["detail"], url=response_["url"],
+                              banner_class='inner-banner', nav_reading_class='active')
     state_code = 'true'
     response = []
     return out
